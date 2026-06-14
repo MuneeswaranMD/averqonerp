@@ -39,7 +39,4 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          name: averqonerp-server
-          type: web
-          property: url
+        value: "https://averqonerp-server.onrender.com"
