@@ -42,4 +42,4 @@ services:
         fromService:
           name: averqonerp-server
           type: web
-          property: host
+          property: url
