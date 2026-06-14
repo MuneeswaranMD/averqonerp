@@ -6,8 +6,8 @@ services:
     name: averqonerp-server
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=apps/server/prisma/schema.prisma && npx prisma migrate deploy --schema=apps/server/prisma/schema.prisma && npm run build:server
-    startCommand: node apps/server/dist/main
+    buildCommand: npm install --include=dev && npx prisma generate --schema=apps/server/prisma/schema.prisma && npm run build:server
+    startCommand: npx prisma migrate deploy --schema=apps/server/prisma/schema.prisma && node apps/server/dist/main
     envVars:
       - key: NODE_ENV
         value: production
@@ -31,7 +31,7 @@ services:
     name: averqonerp-web
     env: node
     plan: free
-    buildCommand: npm install && npm run build:web
+    buildCommand: npm install --include=dev && npm run build:web
     startCommand: npm run start -w apps/web
     envVars:
       - key: NODE_ENV
