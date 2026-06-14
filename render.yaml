@@ -1,0 +1,43 @@
+services:
+  # ----------------------------------------------------
+  # 1. NestJS Backend (Web Service)
+  # ----------------------------------------------------
+  - type: web
+    name: averqonerp-server
+    env: node
+    plan: starter
+    buildCommand: npm install && npx prisma generate --schema=apps/server/prisma/schema.prisma && npx prisma migrate deploy --schema=apps/server/prisma/schema.prisma && npm run build:server
+    startCommand: node apps/server/dist/main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false # User will input their Supabase database URL in the Render UI
+      - key: JWT_SECRET
+        value: "a3f8c2d1e9b4567890abcdef1234567890abcdef1234567890abcdef12345678"
+      - key: JWT_REFRESH_SECRET
+        value: "9b2e1f4a8c3d5e7b0a6c9d2e5f8b1a4c7e0f3b6d9e2a5c8f1b4d7e0a3c6f9b2"
+      - key: JWT_EXPIRES_IN
+        value: "15m"
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: "7d"
+
+  # ----------------------------------------------------
+  # 2. Next.js Frontend (Web Service)
+  # ----------------------------------------------------
+  - type: web
+    name: averqonerp-web
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build:web
+    startCommand: npm run start -w apps/web
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: averqonerp-server
+          type: web
+          property: host
