@@ -1,0 +1,528 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  PRINCIPAL
+  ACCOUNTANT
+  TEACHER
+  STUDENT
+  PARENT
+  TRANSPORT_MANAGER
+  DRIVER
+  ATTENDANCE_STAFF
+  HR_MANAGER
+  LIBRARIAN
+  RECEPTIONIST
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+}
+
+enum InvoiceStatus {
+  PAID
+  PARTIAL
+  UNPAID
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+  LATE
+}
+
+// 1. Multi-Tenant Core
+model School {
+  id           String        @id @default(uuid())
+  name         String
+  domain       String        @unique
+  logoUrl      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  // Relations
+  users         User[]
+  academicYears AcademicYear[]
+  classes       Class[]
+  sections      Section[]
+  students      Student[]
+  parents       Parent[]
+  teachers      Teacher[]
+  subjects      Subject[]
+  attendances   Attendance[]
+  feeCategories FeeCategory[]
+  feeInvoices   FeeInvoice[]
+  feePayments   FeePayment[]
+  exams         Exam[]
+  examResults   ExamResult[]
+  buses         Bus[]
+  routes        Route[]
+  stops         Stop[]
+  lmsCourses    LMSCourse[]
+  expenses      Expense[]
+  subjectTeachers SubjectTeacher[]
+  studentRoutes   StudentRoute[]
+  admissionApplications AdmissionApplication[]
+  parentStudents  ParentStudent[]
+  customRoles     CustomRole[]
+  auditLogs       AuditLog[]
+  loginActivities LoginActivity[]
+}
+
+model AcademicYear {
+  id           String      @id @default(uuid())
+  schoolId     String
+  school       School      @relation(fields: [schoolId], references: [id])
+  year         String      // e.g. "2026-2027"
+  isActive     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  
+  invoices     FeeInvoice[]
+  exams        Exam[]
+
+  @@unique([schoolId, year])
+}
+
+// 2. User & Roles
+model User {
+  id           String    @id @default(uuid())
+  schoolId     String
+  school       School    @relation(fields: [schoolId], references: [id])
+  email        String    @unique
+  passwordHash String
+  role         Role
+  firstName    String
+  lastName     String
+  phone        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Role-specific extensions
+  studentProfile  Student?
+  parentProfile   Parent?
+  teacherProfile  Teacher?
+  customRoleId    String?
+  customRole      CustomRole?      @relation(fields: [customRoleId], references: [id])
+  userPermissions UserPermission[]
+  auditLogs       AuditLog[]
+  loginActivities LoginActivity[]
+}
+
+model Student {
+  id           String      @id @default(uuid())
+  schoolId     String
+  school       School      @relation(fields: [schoolId], references: [id])
+  userId       String      @unique
+  user         User        @relation(fields: [userId], references: [id])
+  admissionNo  String      @unique
+  rollNo       String?
+  classId      String
+  class        Class       @relation(fields: [classId], references: [id])
+  sectionId    String
+  section      Section     @relation(fields: [sectionId], references: [id])
+  parentId     String?
+  parent       Parent?     @relation(fields: [parentId], references: [id])
+  
+  attendances  Attendance[]
+  feeInvoices  FeeInvoice[]
+  examResults  ExamResult[]
+  submissions  LMSSubmission[]
+  assignedStop StudentRoute?
+  parentStudents ParentStudent[]
+}
+
+model Parent {
+  id             String    @id @default(uuid())
+  schoolId       String
+  school         School    @relation(fields: [schoolId], references: [id])
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  primaryContact String
+  occupation     String?
+  
+  students       Student[]
+  parentStudents ParentStudent[]
+}
+
+model Teacher {
+  id          String           @id @default(uuid())
+  schoolId    String
+  school      School           @relation(fields: [schoolId], references: [id])
+  userId      String           @unique
+  user        User             @relation(fields: [userId], references: [id])
+  designation String
+  joinedAt    DateTime         @default(now())
+  
+  subjects    SubjectTeacher[]
+}
+
+// 3. Academic Structure
+model Class {
+  id        String    @id @default(uuid())
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  name      String    // e.g. "Grade 10"
+  
+  sections  Section[]
+  students  Student[]
+  subjects  Subject[]
+  courses   LMSCourse[]
+}
+
+model Section {
+  id        String    @id @default(uuid())
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  name      String    // e.g. "A"
+  classId   String
+  class     Class     @relation(fields: [classId], references: [id])
+  
+  students  Student[]
+  assignments SubjectTeacher[]
+  courses   LMSCourse[]
+}
+
+model Subject {
+  id        String    @id @default(uuid())
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
+  name      String    // e.g. "Mathematics"
+  code      String    // e.g. "MATH101"
+  classId   String
+  class     Class     @relation(fields: [classId], references: [id])
+  
+  teachers  SubjectTeacher[]
+  examResults ExamResult[]
+  courses   LMSCourse[]
+}
+
+model SubjectTeacher {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  classId   String
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id])
+
+  @@unique([teacherId, subjectId, classId, sectionId])
+}
+
+// 4. Attendance
+model Attendance {
+  id        String           @id @default(uuid())
+  schoolId  String
+  school    School           @relation(fields: [schoolId], references: [id])
+  studentId String
+  student   Student          @relation(fields: [studentId], references: [id])
+  date      DateTime         @db.Date
+  status    AttendanceStatus
+  remarks   String?
+  createdAt DateTime         @default(now())
+
+  @@unique([studentId, date])
+}
+
+// 5. Fees & Invoicing
+model FeeCategory {
+  id        String       @id @default(uuid())
+  schoolId  String
+  school    School       @relation(fields: [schoolId], references: [id])
+  name      String       // e.g. "Tution Fee Q1"
+  amount    Decimal      @db.Decimal(10, 2)
+  invoices  FeeInvoice[]
+}
+
+model FeeInvoice {
+  id             String        @id @default(uuid())
+  schoolId       String
+  school         School        @relation(fields: [schoolId], references: [id])
+  studentId      String
+  student        Student       @relation(fields: [studentId], references: [id])
+  academicYearId String
+  academicYear   AcademicYear  @relation(fields: [academicYearId], references: [id])
+  categoryId     String
+  category       FeeCategory   @relation(fields: [categoryId], references: [id])
+  amount         Decimal       @db.Decimal(10, 2)
+  dueDate        DateTime
+  status         InvoiceStatus @default(UNPAID)
+  
+  payments       FeePayment[]
+}
+
+model FeePayment {
+  id            String     @id @default(uuid())
+  schoolId      String
+  school        School     @relation(fields: [schoolId], references: [id])
+  invoiceId     String
+  invoice       FeeInvoice @relation(fields: [invoiceId], references: [id])
+  amountPaid    Decimal    @db.Decimal(10, 2)
+  paidAt        DateTime   @default(now())
+  paymentMethod String     // e.g. "Razorpay", "Cash"
+  transactionId String?    @unique // Razorpay Order/Payment ID
+}
+
+// 6. Exams & Marks
+model Exam {
+  id             String       @id @default(uuid())
+  schoolId       String
+  school         School       @relation(fields: [schoolId], references: [id])
+  name           String       // e.g. "Mid-Term Examination"
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  startDate      DateTime
+  endDate        DateTime
+  
+  results        ExamResult[]
+}
+
+model ExamResult {
+  id            String   @id @default(uuid())
+  schoolId      String
+  school        School   @relation(fields: [schoolId], references: [id])
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id])
+  examId        String
+  exam          Exam     @relation(fields: [examId], references: [id])
+  subjectId     String
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+  marksObtained Decimal          @db.Decimal(5, 2)
+  maxMarks      Decimal          @db.Decimal(5, 2)
+  grade         String?
+  status        ExamResultStatus @default(PENDING_APPROVAL)
+}
+
+// 7. Transport
+model Bus {
+  id         String   @id @default(uuid())
+  schoolId   String
+  school     School   @relation(fields: [schoolId], references: [id])
+  vehicleNo  String   @unique
+  driverName String
+  driverPhone String
+  
+  routes     Route[]
+}
+
+model Route {
+  id         String         @id @default(uuid())
+  schoolId   String
+  school     School         @relation(fields: [schoolId], references: [id])
+  name       String
+  startPoint String
+  endPoint   String
+  busId      String
+  bus        Bus            @relation(fields: [busId], references: [id])
+  
+  stops      Stop[]
+  assignments StudentRoute[]
+}
+
+model Stop {
+  id          String         @id @default(uuid())
+  schoolId    String
+  school      School         @relation(fields: [schoolId], references: [id])
+  routeId     String
+  route       Route          @relation(fields: [routeId], references: [id])
+  name        String
+  sequence    Int
+  arrivalTime String         // e.g. "07:30 AM"
+  
+  assignments StudentRoute[]
+}
+
+model StudentRoute {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  studentId String   @unique
+  student   Student  @relation(fields: [studentId], references: [id])
+  routeId   String
+  route     Route    @relation(fields: [routeId], references: [id])
+  stopId    String
+  stop      Stop     @relation(fields: [stopId], references: [id])
+}
+
+// 8. LMS
+model LMSCourse {
+  id          String          @id @default(uuid())
+  schoolId    String
+  school      School          @relation(fields: [schoolId], references: [id])
+  name        String
+  subjectId   String
+  subject     Subject         @relation(fields: [subjectId], references: [id])
+  classId     String
+  class       Class           @relation(fields: [classId], references: [id])
+  sectionId   String
+  section     Section         @relation(fields: [sectionId], references: [id])
+  
+  lessons     LMSLesson[]
+  assignments LMSAssignment[]
+}
+
+model LMSLesson {
+  id          String    @id @default(uuid())
+  schoolId    String
+  courseId    String
+  course      LMSCourse @relation(fields: [courseId], references: [id])
+  title       String
+  description String?
+  contentUrl  String?   // S3/R2 URL
+  createdAt   DateTime  @default(now())
+}
+
+model LMSAssignment {
+  id          String          @id @default(uuid())
+  schoolId    String
+  courseId    String
+  course      LMSCourse       @relation(fields: [courseId], references: [id])
+  title       String
+  description String?
+  fileUrl     String?
+  dueDate     DateTime
+  createdAt   DateTime        @default(now())
+  
+  submissions LMSSubmission[]
+}
+
+model LMSSubmission {
+  id           String           @id @default(uuid())
+  assignmentId String
+  assignment   LMSAssignment    @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      Student          @relation(fields: [studentId], references: [id])
+  submittedAt  DateTime         @default(now())
+  fileUrl      String
+  marks        Decimal?         @db.Decimal(5, 2)
+  feedback     String?
+  status       SubmissionStatus @default(SUBMITTED)
+}
+
+// 9. Simple Expense Accounting
+model Expense {
+  id            String   @id @default(uuid())
+  schoolId      String
+  school        School   @relation(fields: [schoolId], references: [id])
+  title         String
+  amount        Decimal  @db.Decimal(10, 2)
+  category      String   // e.g. "Utility", "Salary", "Maintenance"
+  date          DateTime @db.Date
+  paymentMethod String
+  remarks       String?
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AdmissionApplication {
+  id             String            @id @default(uuid())
+  schoolId       String
+  school         School            @relation(fields: [schoolId], references: [id])
+  firstName      String
+  lastName       String
+  email          String
+  gradeRequested String
+  parentContact  String
+  status         ApplicationStatus @default(PENDING)
+  appliedAt      DateTime          @default(now())
+}
+
+model ParentStudent {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  parentId  String
+  parent    Parent   @relation(fields: [parentId], references: [id])
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([parentId, studentId])
+}
+
+enum ExamResultStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+}
+
+model CustomRole {
+  id             String           @id @default(uuid())
+  schoolId       String
+  school         School           @relation(fields: [schoolId], references: [id])
+  name           String
+  
+  users          User[]
+  permissions    RolePermission[]
+
+  @@unique([schoolId, name])
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  
+  roles           RolePermission[]
+  userPermissions UserPermission[]
+}
+
+model RolePermission {
+  roleId       String
+  role         CustomRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model UserPermission {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  allowed      Boolean
+
+  @@unique([userId, permissionId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+model LoginActivity {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  ipAddress String?
+  device    String?
+  location  String?
+  loginTime DateTime @default(now())
+}
