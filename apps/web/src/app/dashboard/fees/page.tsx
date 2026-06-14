@@ -41,8 +41,8 @@ export default function FeesDashboard() {
 
       const isStaff = ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'ACCOUNTANT', 'TEACHER'].includes(user.role);
       const endpoint = isStaff
-        ? 'http://localhost:3001/api/v1/fees/invoices'
-        : 'http://localhost:3001/api/v1/fees/my-invoices';
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/fees/invoices`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/fees/my-invoices`;
 
       const res = await fetch(endpoint, {
         headers: {
@@ -74,7 +74,7 @@ export default function FeesDashboard() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/fees/pay/${invoiceId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/fees/pay/${invoiceId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export default function FeesDashboard() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/fees/invoices', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/fees/invoices`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

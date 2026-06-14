@@ -32,7 +32,7 @@ export default function AddStaffPage() {
       const userStr = localStorage.getItem('user');
       const schoolId = userStr ? JSON.parse(userStr).schoolId : '';
       
-      const res = await fetch('http://localhost:3001/api/v1/auth/register-user', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

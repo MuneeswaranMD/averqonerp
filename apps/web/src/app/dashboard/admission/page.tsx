@@ -34,7 +34,7 @@ export default function AdminAdmissionPage() {
       
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/admission/applications', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admission/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId,
@@ -67,7 +67,7 @@ export default function AdminAdmissionPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/admission/applications/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admission/applications/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -25,7 +25,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/v1/auth/register-school', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register-school`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

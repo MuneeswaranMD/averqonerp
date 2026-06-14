@@ -48,7 +48,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem('accessToken');
       if (!token) return;
 
-      const res = await fetch('http://localhost:3001/api/v1/dashboard', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': currentUser.schoolId

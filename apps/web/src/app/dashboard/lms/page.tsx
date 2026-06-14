@@ -96,7 +96,7 @@ export default function LMSPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/lms/courses', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/lms/courses`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId,
@@ -129,7 +129,7 @@ export default function LMSPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/lms/submissions', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/lms/submissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

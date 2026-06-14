@@ -51,7 +51,7 @@ export default function StaffListPage() {
       const token = localStorage.getItem('accessToken');
       const userStr = localStorage.getItem('user');
       const user = JSON.parse(userStr!);
-      const res = await fetch(`http://localhost:3001/api/v1/access-control/users/${editMember.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users/${editMember.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'x-school-id': user.schoolId },
         body: JSON.stringify({ firstName: editFirst, lastName: editLast, email: editEmail }),
@@ -87,7 +87,7 @@ export default function StaffListPage() {
 
       const user = JSON.parse(userStr);
       
-      const res = await fetch('http://localhost:3001/api/v1/access-control/users', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId 

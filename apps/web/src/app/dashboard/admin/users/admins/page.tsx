@@ -44,7 +44,7 @@ export default function SchoolAdminsPage() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/platform-admin/admins', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
       });
       if (res.ok) {
@@ -60,7 +60,7 @@ export default function SchoolAdminsPage() {
     // Fetch real schools and admins
     const fetchSchools = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/v1/platform-admin/schools', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/schools`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         });
         if (res.ok) {
@@ -92,7 +92,7 @@ export default function SchoolAdminsPage() {
 
   const fetchPermissions = async (adminId: string) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/v1/platform-admin/admins/${adminId}/permissions`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins/${adminId}/permissions`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
       });
       if (res.ok) {
@@ -122,8 +122,8 @@ export default function SchoolAdminsPage() {
     setLoading(true);
     const method = selectedAdmin ? 'PUT' : 'POST';
     const url = selectedAdmin 
-      ? `http://localhost:3001/api/v1/platform-admin/admins/${selectedAdmin.id}`
-      : `http://localhost:3001/api/v1/platform-admin/admins`;
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins/${selectedAdmin.id}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins`;
       
     try {
       const res = await fetch(url, {
@@ -162,7 +162,7 @@ export default function SchoolAdminsPage() {
   const handleToggleLock = async () => {
     if (!selectedAdmin) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/v1/platform-admin/admins/${selectedAdmin.id}/lock`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins/${selectedAdmin.id}/lock`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
       });
@@ -200,7 +200,7 @@ export default function SchoolAdminsPage() {
     });
 
     try {
-      const res = await fetch(`http://localhost:3001/api/v1/platform-admin/admins/${selectedAdmin.id}/permissions`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/platform-admin/admins/${selectedAdmin.id}/permissions`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

@@ -45,7 +45,7 @@ export default function ExamResultsPage() {
         setUserEmail(user.email);
         setUserName(`${user.firstName} ${user.lastName}`);
 
-        const res = await fetch('http://localhost:3001/api/v1/exams/my-results', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/exams/my-results`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'x-school-id': user.schoolId,

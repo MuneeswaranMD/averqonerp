@@ -50,7 +50,7 @@ export default function StudentsPage() {
       const userStr = localStorage.getItem('user');
       if (!token || !userStr) return;
       const user = JSON.parse(userStr);
-      const res = await fetch('http://localhost:3001/api/v1/students', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/students`, {
         headers: { Authorization: `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       if (res.ok) setStudents(await res.json());
@@ -75,7 +75,7 @@ export default function StudentsPage() {
       const token = localStorage.getItem('accessToken');
       const userStr = localStorage.getItem('user');
       const user = JSON.parse(userStr!);
-      const res = await fetch(`http://localhost:3001/api/v1/students/${editStudent.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/students/${editStudent.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'x-school-id': user.schoolId },
         body: JSON.stringify({ firstName: editFirst, lastName: editLast, email: editEmail }),
@@ -101,7 +101,7 @@ export default function StudentsPage() {
       const token = localStorage.getItem('accessToken');
       const userStr = localStorage.getItem('user');
       const user = JSON.parse(userStr!);
-      const res = await fetch(`http://localhost:3001/api/v1/students/${disableStudent.id}/toggle`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/students/${disableStudent.id}/toggle`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}`, 'x-school-id': user.schoolId },
       });

@@ -53,7 +53,7 @@ export default function AccountingPage() {
       const user = JSON.parse(userStr);
 
       // Fetch summary
-      const sumRes = await fetch('http://localhost:3001/api/v1/accounting/summary', {
+      const sumRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/accounting/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId,
@@ -64,7 +64,7 @@ export default function AccountingPage() {
       setSummary(sumData);
 
       // Fetch expenses
-      const expRes = await fetch('http://localhost:3001/api/v1/accounting/expenses', {
+      const expRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/accounting/expenses`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId,
@@ -97,7 +97,7 @@ export default function AccountingPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/accounting/expenses', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/accounting/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

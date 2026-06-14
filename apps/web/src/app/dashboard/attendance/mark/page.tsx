@@ -35,7 +35,7 @@ export default function MarkAttendancePage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/attendance/students?classId=${classId}&sectionId=${sectionId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/attendance/students?classId=${classId}&sectionId=${sectionId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-school-id': user.schoolId,
@@ -84,7 +84,7 @@ export default function MarkAttendancePage() {
         remarks: remarks[studentId] || undefined,
       }));
 
-      const res = await fetch('http://localhost:3001/api/v1/attendance/mark', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/attendance/mark`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

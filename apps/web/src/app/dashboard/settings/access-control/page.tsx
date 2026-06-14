@@ -112,14 +112,14 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const pRes = await fetch('http://localhost:3001/api/v1/access-control/permissions', {
+      const pRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/permissions`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const pData = await pRes.json();
       if (!pRes.ok) throw new Error(pData.message || 'Failed to load permissions catalog.');
       setCatalog(pData);
 
-      const rRes = await fetch('http://localhost:3001/api/v1/access-control/roles', {
+      const rRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/roles`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const rData = await rRes.json();
@@ -160,7 +160,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/access-control/roles/${selectedRole.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/roles/${selectedRole.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/access-control/roles', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/roles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/access-control/roles/${roleId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/roles/${roleId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
@@ -265,13 +265,13 @@ export default function AccessControlPage() {
       const user = JSON.parse(userStr);
 
       // Fetch custom roles list first
-      const rRes = await fetch('http://localhost:3001/api/v1/access-control/roles', {
+      const rRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/roles`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const rData = await rRes.json();
       if (rRes.ok) setRoles(rData);
 
-      const uRes = await fetch('http://localhost:3001/api/v1/access-control/users', {
+      const uRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const uData = await uRes.json();
@@ -299,7 +299,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) return;
       const user = JSON.parse(userStr);
 
-      const res = await fetch(`http://localhost:3001/api/v1/access-control/users/${targetUser.id}/overrides`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users/${targetUser.id}/overrides`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const data = await res.json();
@@ -330,7 +330,7 @@ export default function AccessControlPage() {
 
       // 1. Save user Custom Role definition
       const roleIdPayload = selectedUserRoleId === 'none' ? null : selectedUserRoleId;
-      const roleRes = await fetch(`http://localhost:3001/api/v1/access-control/users/${selectedUser.id}/role`, {
+      const roleRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users/${selectedUser.id}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -351,7 +351,7 @@ export default function AccessControlPage() {
         allowed: o.overrideState
       }));
 
-      const overrideRes = await fetch(`http://localhost:3001/api/v1/access-control/users/${selectedUser.id}/overrides`, {
+      const overrideRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/users/${selectedUser.id}/overrides`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -384,7 +384,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/exams/results/pending', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/exams/results/pending`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const data = await res.json();
@@ -407,7 +407,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/exams/results/approve', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/exams/results/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -440,7 +440,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/access-control/login-activities', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/login-activities`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const data = await res.json();
@@ -461,7 +461,7 @@ export default function AccessControlPage() {
       if (!token || !userStr) throw new Error('Unauthorized');
       const user = JSON.parse(userStr);
 
-      const res = await fetch('http://localhost:3001/api/v1/access-control/audit-logs', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/access-control/audit-logs`, {
         headers: { 'Authorization': `Bearer ${token}`, 'x-school-id': user.schoolId }
       });
       const data = await res.json();

@@ -103,7 +103,7 @@ export default function ExamsDashboard() {
         const userStr = localStorage.getItem('user');
         if (!token || !userStr) return;
         const user = JSON.parse(userStr);
-        const res = await fetch('http://localhost:3001/api/v1/exams', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/exams`, {
           headers: { Authorization: `Bearer ${token}`, 'x-school-id': user.schoolId }
         });
         if (res.ok) setExams(await res.json());

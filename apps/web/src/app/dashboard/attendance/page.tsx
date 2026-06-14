@@ -30,7 +30,7 @@ export default function AttendanceDashboard() {
 
         // Fetch logs (only relevant for students/parents)
         if (user.role === 'STUDENT' || user.role === 'PARENT') {
-          const res = await fetch('http://localhost:3001/api/v1/attendance/my-logs', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/attendance/my-logs`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'x-school-id': user.schoolId,

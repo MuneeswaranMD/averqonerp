@@ -28,13 +28,13 @@ export default function AddStudentPage() {
     const fetchData = async () => {
       try {
         const [classRes, secRes] = await Promise.all([
-          fetch('http://localhost:3001/api/v1/classes', {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/classes`, {
             headers: { 
               Authorization: `Bearer ${token}`,
               'x-school-id': user.schoolId
             }
           }),
-          fetch('http://localhost:3001/api/v1/sections', {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/sections`, {
             headers: { 
               Authorization: `Bearer ${token}`,
               'x-school-id': user.schoolId
@@ -80,7 +80,7 @@ export default function AddStudentPage() {
       // For this UI mockup, we will pass empty strings if they aren't selected to trigger validation errors,
       // but in reality we need real IDs.
 
-      const res = await fetch('http://localhost:3001/api/v1/students', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/students`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
